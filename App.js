@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 
 import {
@@ -22,8 +21,6 @@ import {
   Poppins_900Black,
   Poppins_900Black_Italic,
 } from '@expo-google-fonts/poppins';
-import AppLoading from 'expo-app-loading';
-import Header from './src/components/Header';
 import Routes from './src/routes';
 
 
@@ -51,13 +48,9 @@ export default function App() {
     Poppins_900Black_Italic,
   })
 
-  if(!fontsLoaded) {
-    return <AppLoading />
-  } else {
-    return (
-      <NavigationContainer>
-        <Routes />
-      </NavigationContainer>
-    );
-  }
+  return (
+    <NavigationContainer>
+      <Routes />
+    </NavigationContainer>
+  );
 }
