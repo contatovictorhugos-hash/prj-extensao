@@ -1,64 +1,110 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Feather from '@expo/vector-icons/Feather';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 
+import Ionicons from '@expo/vector-icons/Ionicons';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import Entypo from '@expo/vector-icons/Entypo';
+
+
+// Criando uma tab nagivator para definir as telas da aplicação
 const Tab = createBottomTabNavigator();
 
-import Dogs from './pages/Dogs';
-import Donate from './pages/Donate';
-import Home from './pages/Home';
-import CustomTabBarIcon from './components/CustomTabBarIcon';
+// Importando os componentes da tela Login e Register
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ComingSoon from './pages/ComingSoon';
+import { TabBarIconButton } from './styles';
+import Info from './pages/Info';
 
 export default function Routes(){
   return (
+
+    // Aqui é utilizado o Navigator como um container para as Screens
+    // é definido que a tela inicial da aplicação sera a tela Login e nessas telas, apliquei um display none na tabBar 
     <Tab.Navigator
-      initialParams={{ initialScreen: 'Home' }}
-      screenOptions={({ route }) => ({
-        tabBarActiveTintColor: '#091C1A',
-        tabBarInactiveTintColor: '#A1D683',
-        tabBarStyle:{
-          backgroundColor: '#091C1A',
-          height: '11%'
-        }
-      })}
+      initialParams={{ initialScreen: 'Login' }}
+      screenOptions={{
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: 'black',
+        tabBarInactiveTintColor: 'black'
+      }}
     > 
+    
+      {/* Definição da tela, onde temos a name para sua identificação, o componente a ser renderizado, e que o nome da tela não irá aparecer no topo da tela */}
       <Tab.Screen
-        name="Donate"
-        component={Donate}
+        name="Login"
+        component={Login}
         options={{
           headerShown: false,
-          tabBarLabel: () => null,
-          tabBarIcon: ({ size, color, focused }) => (
-            <CustomTabBarIcon focused={focused}>
-              <FontAwesome5 name="hand-holding-heart" size={size} color={color} />
-            </CustomTabBarIcon>
+          tabBarStyle: { display: 'none' },
+          tabBarButton: () => null
+        }}
+      />
+      <Tab.Screen
+        name="Register"
+        component={Register}
+        options={{
+          headerShown: false,
+          tabBarStyle: { display: 'none' },
+          tabBarButton: () => null
+        }}
+      />
+      <Tab.Screen
+        name="Rocket"
+        component={ComingSoon}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({color, focused}) => (
+            <TabBarIconButton isFocused={focused}>
+              <Entypo name="rocket" size={24} color={color} />
+            </TabBarIconButton>
+          )
+        }}
+      />
+      <Tab.Screen
+        name="Calendar"
+        component={ComingSoon}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({color, focused}) => (
+            <TabBarIconButton isFocused={focused}>
+              <Entypo name="calendar" size={24} color={color} />
+            </TabBarIconButton>
           )
         }}
       />
       <Tab.Screen
         name="Home"
-        component={Home}
+        component={ComingSoon}
         options={{
           headerShown: false,
-          tabBarLabel: () => null,
-          tabBarIcon: ({ size, color, focused }) => (
-            <CustomTabBarIcon focused={focused}>
-              <Feather name="home" size={size} color={color} />
-            </CustomTabBarIcon>
+          tabBarIcon: ({color, focused}) => (
+            <TabBarIconButton isFocused={focused}>
+              <Entypo name="home" size={24} color={color} />
+            </TabBarIconButton>
           )
         }}
       />
       <Tab.Screen
-        name="Dogs"
-        component={Dogs}
+        name="Info"
+        component={Info}
         options={{
           headerShown: false,
-          tabBarLabel: () => null,
-          tabBarIcon: ({ size, color, focused }) => (
-            <CustomTabBarIcon focused={focused}>
-              <MaterialCommunityIcons name="dog" size={size} color={color} />
-            </CustomTabBarIcon>
+          tabBarIcon: ({color, focused}) => (
+            <TabBarIconButton isFocused={focused}>
+              <AntDesign name="questioncircle" size={24} color={color} />
+            </TabBarIconButton>
+          )
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ComingSoon}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({color, focused}) => (
+            <TabBarIconButton isFocused={focused}>
+              <Ionicons name="person" size={24} color={color} />
+            </TabBarIconButton>
           )
         }}
       />

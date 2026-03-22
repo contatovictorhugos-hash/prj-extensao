@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Amora",
-    "slug": "Amora",
+    "name": "Metodista",
+    "slug": "Metodista",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -22,7 +22,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.arrudonimous.Amora"
+      "package": "com.arrudonimous.Metodista"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -32,9 +32,8 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "258ac67e-5463-418a-b266-736db2b6c118"
+        "projectId": "49b12cd0-2c7e-4117-8f0b-021a93a292ae"
       }
-    },
-    "owner": "arrudonimous"
+    }
   }
 }

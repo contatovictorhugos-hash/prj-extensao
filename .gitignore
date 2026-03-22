@@ -33,3 +33,14 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# Build Output Artifacts
+*.apk
+*.aab
+*.keystore
+
+# Arquivos de Dados e Textos Gerados
+*.txt
+*.csv
+*.xls
+*.xlsx
