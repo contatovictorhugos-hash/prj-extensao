@@ -6,13 +6,13 @@ import { getStorage } from 'firebase/storage';
 // IMPORTANTE: O desenvolvedor DEVE preencher essas chaves com as do Console do Firebase
 // para que a comunicação de dados funcione!
 const firebaseConfig = {
-  apiKey: "AIzaSyChumTTh9In6fQnPaISjZ3wVCX49NQ_YYc",
-  authDomain: "appmetodista.firebaseapp.com",
-  projectId: "appmetodista",
-  storageBucket: "appmetodista.firebasestorage.app",
-  messagingSenderId: "422969540670",
-  appId: "1:422969540670:web:08ebf72877552b7834d16f",
-  measurementId: "G-B38K0RJLTN"
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
 // Inicializa o Firebase
