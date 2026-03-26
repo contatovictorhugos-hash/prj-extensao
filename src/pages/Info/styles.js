@@ -2,8 +2,8 @@ import styled from "styled-components/native";
 
 // Aqui são feitas todas as estlizações feitas para a tela de Home
 export const HomeContainer = styled.View`
+  flex: 1;
   width: 100%;
-  height: 100%;
   display: flex;
 `
 
@@ -35,6 +35,7 @@ export const LogoImage = styled.Image`
 
 
 export const MenuContainer = styled.View`
+  flex: 1;
 `
 
 export const MenuSrc = styled.View`
@@ -55,7 +56,7 @@ export const MenuItemLabel = styled.Text`
   font-size: 18px;
 `
 
-export const MenuContent = styled.View`
+export const MenuContent = styled.ScrollView`
   padding: 20px;
 `
 

@@ -1,10 +1,12 @@
-import { StyleSheet, Image } from 'react-native';
+import { StyleSheet, Image, Alert } from 'react-native';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { auth, db, storage } from '../../services/firebaseConfig';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { 
   AvatarInputContainer,
   CancelButton, 
-  CityStateZipCodeContainer, 
-  FormCityInput, 
   FormContainer, 
   FormIcon, 
   FormInput, 
@@ -12,7 +14,6 @@ import {
   FormItem, 
   FormItemName, 
   FormLabel, 
-  FormZipCodeInput, 
   HeaderContainer, 
   HeaderTitle, 
   RegisterContainter, 
@@ -22,7 +23,7 @@ import { SafeAreaViewComponent } from '../../styles';
 import { useState } from "react";
 import { FontAwesome, Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { Button } from "../../components/Button";
-import { Text, Select, Button as NativeButton } from 'native-base';
+import { Text, Button as NativeButton } from 'native-base';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function Register({ navigation }) {
@@ -30,55 +31,107 @@ export default function Register({ navigation }) {
   const [dateOfBirth, setDateOfBirth] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
-  const [address, setAddress] = useState('')
-  const [city, setCity] = useState('')
-  const [zipCode, setZipCode] = useState('')
-  const [state, setState] = useState('')
-  const [imageUri, setImageUri] = useState(null);
+  const [imageUri, setImageUri] = useState(null)
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handlePhoneChange = (text) => {
+    let cleaned = ('' + text).replace(/\D/g, '');
+    let len = cleaned.length;
+    
+    if (len > 11) cleaned = cleaned.substring(0, 11);
+    
+    if (len <= 2) {
+      setPhone(cleaned);
+    } else if (len <= 7) {
+      setPhone(`(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`);
+    } else {
+      setPhone(`(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`);
+    }
+  };
+
+  const handleDateChange = (text) => {
+    let cleaned = ('' + text).replace(/\D/g, '');
+    let len = cleaned.length;
+
+    if (len > 8) cleaned = cleaned.substring(0, 8);
+
+    if (len <= 2) {
+      setDateOfBirth(cleaned);
+    } else if (len <= 4) {
+      setDateOfBirth(`${cleaned.slice(0, 2)}/${cleaned.slice(2)}`);
+    } else {
+      setDateOfBirth(`${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4, 8)}`);
+    }
+  };
 
 
-  const states = [
-    { label: "Acre", value: "AC" },
-    { label: "Alagoas", value: "AL" },
-    { label: "Amapá", value: "AP" },
-    { label: "Amazonas", value: "AM" },
-    { label: "Bahia", value: "BA" },
-    { label: "Ceará", value: "CE" },
-    { label: "Distrito Federal", value: "DF" },
-    { label: "Espírito Santo", value: "ES" },
-    { label: "Goiás", value: "GO" },
-    { label: "Maranhão", value: "MA" },
-    { label: "Mato Grosso", value: "MT" },
-    { label: "Mato Grosso do Sul", value: "MS" },
-    { label: "Minas Gerais", value: "MG" },
-    { label: "Pará", value: "PA" },
-    { label: "Paraíba", value: "PB" },
-    { label: "Paraná", value: "PR" },
-    { label: "Pernambuco", value: "PE" },
-    { label: "Piauí", value: "PI" },
-    { label: "Rio de Janeiro", value: "RJ" },
-    { label: "Rio Grande do Norte", value: "RN" },
-    { label: "Rio Grande do Sul", value: "RS" },
-    { label: "Rondônia", value: "RO" },
-    { label: "Roraima", value: "RR" },
-    { label: "Santa Catarina", value: "SC" },
-    { label: "São Paulo", value: "SP" },
-    { label: "Sergipe", value: "SE" },
-    { label: "Tocantins", value: "TO" }
-  ]
 
-  const onFinish = () => {
-    setName('')
-    setDateOfBirth('')
-    setEmail('')
-    setPhone('')
-    setAddress('')
-    setCity('')
-    setZipCode('')
-    setState('')
-    setImageUri(null)
+  const onFinish = async () => {
+    if (!email || !password || !name) {
+      Alert.alert('Atenção', 'E-mail, senha e nome são obrigatórios.');
+      return;
+    }
 
-    navigation.navigate('Home')
+    if (password.length < 6) {
+      Alert.alert('Atenção', 'A senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+
+    if (dateOfBirth) {
+      const parts = dateOfBirth.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (!parts) {
+        Alert.alert('Atenção', 'Data de nascimento deve estar no formato dd/mm/yyyy.');
+        return;
+      }
+      const [, day, month, year] = parts.map(Number);
+      const currentYear = new Date().getFullYear();
+      if (month < 1 || month > 12 || day < 1 || day > 31 || year < 1900 || year > currentYear) {
+        Alert.alert('Atenção', 'Data de nascimento inválida.');
+        return;
+      }
+    }
+    
+    setLoading(true);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      let avatarUrl = "";
+      if (imageUri) {
+         const response = await fetch(imageUri);
+         const blob = await response.blob();
+         const fileRef = ref(storage, `avatars/${user.uid}.jpg`);
+         await uploadBytes(fileRef, blob);
+         avatarUrl = await getDownloadURL(fileRef);
+      }
+
+      await setDoc(doc(db, 'users', user.uid), {
+         name,
+         dateOfBirth,
+         email,
+         phone,
+         avatarUrl
+      });
+      
+      Alert.alert("Sucesso", "Conta criada com sucesso!");
+      navigation.navigate('Home');
+    } catch(err) {
+      console.warn('Register error:', err.code);
+      let errorMessage = "Não foi possível criar a conta. Tente novamente.";
+      
+      if (err.code === 'auth/email-already-in-use') {
+        errorMessage = "Este e-mail já está cadastrado.";
+      } else if (err.code === 'auth/invalid-email') {
+        errorMessage = "E-mail inválido.";
+      } else if (err.code === 'auth/weak-password') {
+        errorMessage = "A senha é muito fraca. Use pelo menos 6 caracteres.";
+      }
+      
+      Alert.alert("Erro", errorMessage);
+    } finally {
+      setLoading(false);
+    }
   }
 
 
@@ -90,7 +143,7 @@ export default function Register({ navigation }) {
       quality: 1,
     })
 
-    if (!result.cancelled) {
+    if (!result.canceled && result.assets && result.assets.length > 0) {
       setImageUri(result.assets[0].uri);
     }
   };
@@ -99,9 +152,10 @@ export default function Register({ navigation }) {
     <SafeAreaViewComponent>
       <KeyboardAwareScrollView
         contentContainerStyle={styles.container}
-        resetScrollToCoords={{ x: 100, y: 100 }}
+        resetScrollToCoords={{ x: 0, y: 0 }}
         scrollEnabled={true}
-        extraScrollHeight={50}
+        extraScrollHeight={100}
+        enableOnAndroid={true}
       >
         <RegisterContainter>
           <HeaderContainer>
@@ -134,52 +188,30 @@ export default function Register({ navigation }) {
                 <FormIcon>
                   <MaterialIcons name="cake" size={32} color="black" />
                 </FormIcon>
-                <FormInput placeholder="01-01-1990" value={dateOfBirth} onChangeText={(value) => setDateOfBirth(value)} />
+                <FormInput placeholder="dd/mm/yyyy" value={dateOfBirth} onChangeText={handleDateChange} keyboardType="numeric" maxLength={10} />
               </FormItem>
               <FormItem>
                 <FormIcon>
                   <Ionicons name="mail" size={32} color="black" />
                 </FormIcon>
-                <FormInput placeholder="nome@exemplo.com" value={email} onChangeText={(value) => setEmail(value)} />
+                <FormInput placeholder="nome@exemplo.com" value={email} onChangeText={(value) => setEmail(value)} autoCapitalize="none" keyboardType="email-address"/>
+              </FormItem>
+              <FormItem>
+                <FormIcon>
+                  <Ionicons name="lock-closed" size={32} color="black" />
+                </FormIcon>
+                <FormInput placeholder="Senha" value={password} onChangeText={(value) => setPassword(value)} secureTextEntry={true} />
               </FormItem>
               <FormItem>
                 <FormIcon>
                   <FontAwesome name="phone" size={32} color="black" />
                 </FormIcon>
-                <FormInput placeholder="Número de telefone" value={phone} onChangeText={(value) => setPhone(value)} />
-              </FormItem>
-              <FormItem>
-                <FormIcon>
-                  <FontAwesome5 name="map-marker-alt" size={32} color="black" />
-                </FormIcon>
-                <FormInput placeholder="Endereço" value={address} onChangeText={(value) => setAddress(value)} />
-              </FormItem>
-              <FormItem>
-                <FormIcon>
-                </FormIcon>
-                <CityStateZipCodeContainer>
-                  <FormCityInput placeholder="Cidade" value={city} onChangeText={(value) => setCity(value)} />
-                  <Select
-                    minWidth="30%"
-                    accessibilityLabel="Estado"
-                    placeholder="Estado"
-                    selectedValue={state}
-                    onValueChange={(value) => setState(value)}
-                    borderRadius={8}
-                    dropdownIcon={() => (<></>)}
-                    fontSize="16"
-                  >
-                    {states.map(state => (
-                      <Select.Item label={state.label} value={state.value} key={state.value} />
-                    ))}
-                  </Select>
-                  <FormZipCodeInput placeholder="Cep" value={zipCode} onChangeText={(value) => setZipCode(value)} />
-                </CityStateZipCodeContainer>
+                <FormInput placeholder="(XX) XXXXX-XXXX" value={phone} onChangeText={handlePhoneChange} keyboardType="phone-pad" maxLength={15} />
               </FormItem>
             </FormContainer>
 
           <SrcContainer>
-            <Button label="Continue" type="primary" onPress={() => onFinish()}/>
+            <Button label={loading ? "Carregando..." : "Cadastrar"} type="primary" onPress={onFinish} disabled={loading}/>
           </SrcContainer>
 
         </RegisterContainter>

@@ -1,17 +1,19 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
-import AntDesign from '@expo/vector-icons/AntDesign';
 import Entypo from '@expo/vector-icons/Entypo';
 
 
 // Criando uma tab nagivator para definir as telas da aplicação
 const Tab = createBottomTabNavigator();
 
-// Importando os componentes da tela Login e Register
 import Login from './pages/Login';
+import SignIn from './pages/SignIn';
 import Register from './pages/Register';
-import ComingSoon from './pages/ComingSoon';
+import Home from './pages/Home';
+import Calendar from './pages/Calendar';
+import Profile from './pages/Profile';
+import Rocket from './pages/Rocket';
 import { TabBarIconButton } from './styles';
 import Info from './pages/Info';
 
@@ -40,6 +42,15 @@ export default function Routes(){
         }}
       />
       <Tab.Screen
+        name="SignIn"
+        component={SignIn}
+        options={{
+          headerShown: false,
+          tabBarStyle: { display: 'none' },
+          tabBarButton: () => null
+        }}
+      />
+      <Tab.Screen
         name="Register"
         component={Register}
         options={{
@@ -50,7 +61,7 @@ export default function Routes(){
       />
       <Tab.Screen
         name="Rocket"
-        component={ComingSoon}
+        component={Rocket}
         options={{
           headerShown: false,
           tabBarIcon: ({color, focused}) => (
@@ -62,7 +73,7 @@ export default function Routes(){
       />
       <Tab.Screen
         name="Calendar"
-        component={ComingSoon}
+        component={Calendar}
         options={{
           headerShown: false,
           tabBarIcon: ({color, focused}) => (
@@ -74,7 +85,7 @@ export default function Routes(){
       />
       <Tab.Screen
         name="Home"
-        component={ComingSoon}
+        component={Home}
         options={{
           headerShown: false,
           tabBarIcon: ({color, focused}) => (
@@ -91,14 +102,14 @@ export default function Routes(){
           headerShown: false,
           tabBarIcon: ({color, focused}) => (
             <TabBarIconButton isFocused={focused}>
-              <AntDesign name="questioncircle" size={24} color={color} />
+              <Ionicons name="help-circle-outline" size={24} color={color} />
             </TabBarIconButton>
           )
         }}
       />
       <Tab.Screen
         name="Profile"
-        component={ComingSoon}
+        component={Profile}
         options={{
           headerShown: false,
           tabBarIcon: ({color, focused}) => (

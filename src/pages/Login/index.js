@@ -61,7 +61,7 @@ export default function Home({ navigation }){
            </InfoContainer> 
            <SrcContainer>
             <ButtonsContainer>
-              <Button label={'Entrar'} type='secondary' onPress={() => navigation.navigate('Home')}/>
+              <Button label={'Entrar'} type='secondary' onPress={() => navigation.navigate('SignIn')}/>
               <Button 
                 label={'Cadastre-se'} 
                 type='primary' 

@@ -7,9 +7,9 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/MetodistaLogo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#111827"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -20,7 +20,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#111827"
       },
       "package": "com.arrudonimous.Metodista"
     },
@@ -34,6 +34,9 @@
       "eas": {
         "projectId": "49b12cd0-2c7e-4117-8f0b-021a93a292ae"
       }
+    },
+    "cli": {
+      "appVersionSource": "remote"
     }
   }
 }

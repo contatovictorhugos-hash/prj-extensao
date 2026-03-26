@@ -1,13 +1,11 @@
 import styled from "styled-components/native";
 
-// Aqui são feitas todas as estlizações feitas para a tela de Register
-
-export const RegisterContainter = styled.View`
+export const SignInContainer = styled.View`
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
 `
 
 export const HeaderContainer = styled.View`
@@ -16,53 +14,27 @@ export const HeaderContainer = styled.View`
   flex-direction: row;
   align-items: flex-start;
   justify-content: space-between;
-`
-
-export const AvatarInputContainer = styled.View`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 32px;
 `
 
 export const HeaderTitle = styled.Text`
-  font-size: 16px;
+  font-size: 24px;
   font-weight: bold;
 `
 
 export const CancelButton = styled.TouchableOpacity`
-  padding: 16px;
+  padding: 8px 16px;
   border-color: black;
   border-radius: 16px;
   border-width: 1px;
 `
 
-
 export const FormContainer = styled.View`
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   width: 80%;
   gap: 16px;
-`
-
-export const FormItemName = styled.View`
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  width: 100%;
-  align-items: flex-start;
-`
-
-export const FormInputName = styled.TextInput`
-  width: 100%;
-  border-color: lightgrey;
-  border-width: 1px;
-  border-radius: 8px;
-  padding: 8px;
-  font-size: 16px;
 `
 
 export const FormItem = styled.View`
@@ -70,11 +42,7 @@ export const FormItem = styled.View`
   flex-direction: row;
   align-items: center;
   width: 100%;
-  align-items: center;
   justify-content: space-between;
-`
-export const FormLabel = styled.Text`
-  font-size: 16px;
 `
 
 export const FormIcon = styled.View`
@@ -88,17 +56,14 @@ export const FormInput = styled.TextInput`
   border-color: lightgrey;
   border-width: 1px;
   border-radius: 8px;
-  padding: 8px;
+  padding: 12px;
   font-size: 16px;
   width: 85%;
 `
-
-
-
 
 export const SrcContainer = styled.View`
   display: flex;
   align-items: flex-end;
   width: 80%;
-  margin-top: 24px;
+  margin-top: 32px;
 `

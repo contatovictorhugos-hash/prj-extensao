@@ -6,10 +6,13 @@ Um aplicativo de conectividade construído com React Native (Expo) voltado intei
 Este projeto adota a arquitetura de compilação em `.apk` exclusivo (Distribuição Direta - SideLoading no Android). Não se trata de um projeto destinado a listagem na Play Store no momento.
 
 ### Telas Funcionais Principais:
-- **Autenticação**: Registro e Identificação completa de fiéis baseada em E-mail.
-- **Home Hub**: Avisos interligados com a igreja e Versículo do dia diário.
-- **Agendamento**: Visualizador de Cultos, Células e Acampamentos vindouros.
-- **Informativos Pessoais**: História e Contato nativos para novos membros, e aba de dízimos/contribuições simplificada (PIX).
+- **Autenticação**: Registro com foto, máscaras de entrada (telefone/data) e identificação baseada em E-mail.
+- **Home Hub**: Avisos dinâmicos em tempo real com níveis de prioridade.
+- **Agendamento**: Agenda completa de Cultos e Eventos com sincronização instantânea.
+- **Células/Rocket**: Aba de dízimos/contribuições com chave PIX editável via nuvem.
+- **Informativos (?)**: História, missão e contatos da igreja totalmente gerenciáveis.
+- **Painel Administrativo**: Controle total (CRUD) de avisos, eventos e textos para o usuário `admin@admin.com`.
+- **Perfil**: Gerenciamento de dados pessoais, edição de perfil e recuperação de senha.
 
 ## Stack Tecnológica
 - **Frontend**: React Native, Expo (SDK 54), React Navigation, Styled-Components, Native-Base.
