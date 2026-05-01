@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { StyleSheet, Alert, View, TextInput } from 'react-native';
+import { StyleSheet, Alert, View, TextInput, Platform, Text, TouchableOpacity as RNTouchableOpacity, KeyboardAvoidingView } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { SafeAreaViewComponent } from '../../styles';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from "../../components/Button";
-import { Text } from 'native-base';
 import Modal from 'react-native-modal';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../../services/firebaseConfig';
@@ -73,8 +72,13 @@ export default function SignIn({ navigation }) {
       setForgotEmail('');
       Alert.alert("Enviado!", "Verifique sua caixa de entrada para redefinir sua senha.");
     } catch (err) {
-      console.warn('Password reset error:', err.code);
-      Alert.alert("Erro", "Não foi possível enviar o e-mail. Verifique se o endereço está correto.");
+      console.warn('Password reset error:', err.code, err.message);
+      let msg = "Não foi possível enviar o e-mail. Verifique se o endereço está correto e cadastrado.";
+      if (err.code === 'auth/user-not-found') msg = "Usuário não encontrado. Verifique o e-mail digitado.";
+      if (err.code === 'auth/invalid-email') msg = "E-mail inválido.";
+      if (err.code === 'auth/too-many-requests') msg = "Muitas tentativas. Aguarde um pouco.";
+      
+      Alert.alert("Erro (" + err.code + ")", msg);
     } finally {
       setResetLoading(false);
     }
@@ -102,6 +106,7 @@ export default function SignIn({ navigation }) {
               </FormIcon>
               <FormInput 
                 placeholder="E-mail" 
+                placeholderTextColor="#9ca3af"
                 value={email} 
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -113,11 +118,17 @@ export default function SignIn({ navigation }) {
               <FormIcon>
                 <Ionicons name="lock-closed" size={24} color="black" />
               </FormIcon>
-              <FormInput 
+              <TextInput 
+                style={styles.passwordInput}
                 placeholder="Senha" 
+                placeholderTextColor="#9ca3af"
                 value={password} 
                 onChangeText={setPassword} 
                 secureTextEntry={true}
+                autoCapitalize="none"
+                autoCorrect={false}
+                textContentType="password"
+                underlineColorAndroid="transparent"
               />
             </FormItem>
           </FormContainer>
@@ -129,46 +140,47 @@ export default function SignIn({ navigation }) {
               onPress={handleLogin}
               disabled={loading}
             />
-            <Text 
-              fontSize="sm" 
-              color="blue.500" 
-              mt={3} 
+            <RNTouchableOpacity 
               onPress={() => {
-                setForgotEmail(email); // Sugere o e-mail já digitado
+                setForgotEmail(email);
                 setForgotPasswordModalVisible(true);
               }}
-              style={{ textAlign: 'center' }}
             >
-              Esqueceu sua senha?
-            </Text>
+              <Text style={styles.forgotPasswordText}>
+                Esqueceu sua senha?
+              </Text>
+            </RNTouchableOpacity>
           </SrcContainer>
         </SignInContainer>
       </KeyboardAwareScrollView>
 
       <Modal isVisible={forgotPasswordModalVisible} onBackdropPress={() => setForgotPasswordModalVisible(false)}>
-        <View style={styles.modalContent}>
-          <Text fontSize="lg" bold mb={3}>Recuperar Senha</Text>
-          <Text fontSize="sm" color="gray.500" mb={3}>
-            Um link para redefinir sua senha será enviado para o e-mail abaixo:
-          </Text>
-          <TextInput
-            style={styles.input}
-            value={forgotEmail}
-            onChangeText={setForgotEmail}
-            placeholder="Seu e-mail"
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          <View style={{ marginTop: 24, gap: 8 }}>
-            <Button 
-              label={resetLoading ? "Enviando..." : "Enviar E-mail"} 
-              type="primary" 
-              onPress={handleForgotPassword}
-              disabled={resetLoading}
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Recuperar Senha</Text>
+            <Text style={styles.modalDescription}>
+              Um link para redefinir sua senha será enviado para o e-mail abaixo:
+            </Text>
+            <TextInput
+              style={styles.input}
+              value={forgotEmail}
+              onChangeText={setForgotEmail}
+              placeholder="Seu e-mail"
+              placeholderTextColor="#9ca3af"
+              keyboardType="email-address"
+              autoCapitalize="none"
             />
-            <Button label="Cancelar" type="secondary" onPress={() => setForgotPasswordModalVisible(false)} />
+            <View style={{ marginTop: 24, gap: 8 }}>
+              <Button 
+                label={resetLoading ? "Enviando..." : "Enviar E-mail"} 
+                type="primary" 
+                onPress={handleForgotPassword}
+                disabled={resetLoading}
+              />
+              <Button label="Cancelar" type="secondary" onPress={() => setForgotPasswordModalVisible(false)} />
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaViewComponent>
   );
@@ -190,5 +202,30 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+  },
+  passwordInput: {
+    borderColor: 'lightgrey',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    width: '85%',
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    color: '#3b82f6',
+    marginTop: 12,
+    textAlign: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  modalDescription: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 12,
   }
 });

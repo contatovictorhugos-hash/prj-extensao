@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, View, TextInput, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, View, TextInput, StyleSheet, Alert, TouchableOpacity, Text, Platform, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaViewComponent } from '../../styles';
 import { collection, onSnapshot, query, orderBy, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../services/firebaseConfig';
 import { AuthContext } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from "../../components/Button";
-import { Text } from 'native-base';
 import Modal from 'react-native-modal';
 import {
   CalendarContainer,
@@ -24,16 +23,19 @@ import {
 } from './styles';
 
 export default function Calendar() {
-  const { isAdmin } = useContext(AuthContext);
+  const { isAdmin, user } = useContext(AuthContext);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [newDate, setNewDate] = useState('');
   const [newType, setNewType] = useState('special');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     const q = query(collection(db, 'events'), orderBy('date', 'asc'));
     
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -43,15 +45,15 @@ export default function Calendar() {
       });
       setEvents(eventsArray);
       setLoading(false);
+      setError(false);
     }, (error) => {
-      if (error.code !== 'permission-denied') {
-        console.warn("Erro ao buscar agenda: ", error);
-      }
+      console.warn("Erro ao buscar agenda: ", error);
       setLoading(false);
+      setError(true);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [user]);
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -98,6 +100,7 @@ export default function Calendar() {
     const [, day, month, year, hour = '00', minute = '00'] = parts;
     const isoDate = new Date(year, month - 1, day, hour, minute).toISOString();
 
+    setSaving(true);
     try {
       await addDoc(collection(db, 'events'), {
         title: newTitle.trim(),
@@ -114,6 +117,8 @@ export default function Calendar() {
     } catch (err) {
       console.warn('Event add error:', err.code || err.message);
       Alert.alert("Erro", "Não foi possível criar o evento.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -158,6 +163,13 @@ export default function Calendar() {
         
         {loading ? (
           <ActivityIndicator size="large" color="#1e3a8a" style={{ marginTop: 32 }} />
+        ) : error ? (
+          <View style={{ alignItems: 'center', marginTop: 32 }}>
+            <Text style={{ color: '#ef4444', fontSize: 14 }}>Erro ao carregar eventos.</Text>
+            <TouchableOpacity onPress={() => { setLoading(true); setError(false); }} style={{ marginTop: 8 }}>
+              <Text style={{ color: '#3b82f6', fontSize: 14 }}>Tentar novamente</Text>
+            </TouchableOpacity>
+          </View>
         ) : events.length === 0 ? (
           <EmptyEventsText>Nenhum evento programado no momento.</EmptyEventsText>
         ) : (
@@ -192,57 +204,62 @@ export default function Calendar() {
       </CalendarContainer>
 
       <Modal isVisible={modalVisible} onBackdropPress={() => setModalVisible(false)}>
-        <View style={styles.modalContent}>
-          <Text fontSize="lg" bold mb={3}>Novo Evento</Text>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Novo Evento</Text>
 
-          <Text fontSize="sm" color="gray.500" mb={1}>Título *</Text>
-          <TextInput
-            style={styles.input}
-            value={newTitle}
-            onChangeText={setNewTitle}
-            placeholder="Ex: Culto de Oração"
-          />
+            <Text style={styles.modalLabel}>Título *</Text>
+            <TextInput
+              style={styles.input}
+              value={newTitle}
+              onChangeText={setNewTitle}
+              placeholder="Ex: Culto de Oração"
+              placeholderTextColor="#9ca3af"
+            />
 
-          <Text fontSize="sm" color="gray.500" mb={1} mt={2}>Descrição</Text>
-          <TextInput
-            style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
-            value={newDescription}
-            onChangeText={setNewDescription}
-            placeholder="Detalhes do evento..."
-            multiline
-          />
+            <Text style={[styles.modalLabel, { marginTop: 8 }]}>Descrição</Text>
+            <TextInput
+              style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
+              value={newDescription}
+              onChangeText={setNewDescription}
+              placeholder="Detalhes do evento..."
+              placeholderTextColor="#9ca3af"
+              multiline
+            />
 
-          <Text fontSize="sm" color="gray.500" mb={1} mt={2}>Data e Hora * (dd/mm/yyyy HH:mm)</Text>
-          <TextInput
-            style={styles.input}
-            value={newDate}
-            onChangeText={handleDateInput}
-            placeholder="25/03/2026 19:00"
-            keyboardType="numeric"
-            maxLength={16}
-          />
+            <Text style={[styles.modalLabel, { marginTop: 8 }]}>Data e Hora * (dd/mm/yyyy HH:mm)</Text>
+            <TextInput
+              style={styles.input}
+              value={newDate}
+              onChangeText={handleDateInput}
+              placeholder="25/03/2026 19:00"
+              placeholderTextColor="#9ca3af"
+              keyboardType="numeric"
+              maxLength={16}
+            />
 
-          <Text fontSize="sm" color="gray.500" mb={1} mt={2}>Tipo</Text>
-          <View style={styles.typeRow}>
-            <TouchableOpacity
-              style={[styles.typeButton, newType === 'special' && styles.typeActiveSpecial]}
-              onPress={() => setNewType('special')}
-            >
-              <Text style={newType === 'special' ? styles.typeTextActive : {}}>Especial</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.typeButton, newType === 'fixed' && styles.typeActiveFixed]}
-              onPress={() => setNewType('fixed')}
-            >
-              <Text style={newType === 'fixed' ? styles.typeTextActive : {}}>Fixo</Text>
-            </TouchableOpacity>
+            <Text style={[styles.modalLabel, { marginTop: 8 }]}>Tipo</Text>
+            <View style={styles.typeRow}>
+              <TouchableOpacity
+                style={[styles.typeButton, newType === 'special' && styles.typeActiveSpecial]}
+                onPress={() => setNewType('special')}
+              >
+                <Text style={newType === 'special' ? styles.typeTextActive : {}}>Especial</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.typeButton, newType === 'fixed' && styles.typeActiveFixed]}
+                onPress={() => setNewType('fixed')}
+              >
+                <Text style={newType === 'fixed' ? styles.typeTextActive : {}}>Fixo</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ marginTop: 16, gap: 8 }}>
+              <Button label={saving ? "Criando..." : "Criar Evento"} type="primary" onPress={handleAddEvent} disabled={saving} />
+              <Button label="Cancelar" type="secondary" onPress={() => setModalVisible(false)} />
+            </View>
           </View>
-
-          <View style={{ marginTop: 16, gap: 8 }}>
-            <Button label="Criar Evento" type="primary" onPress={handleAddEvent} />
-            <Button label="Cancelar" type="secondary" onPress={() => setModalVisible(false)} />
-          </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaViewComponent>
   );
@@ -289,5 +306,15 @@ const styles = StyleSheet.create({
   typeTextActive: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  modalLabel: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 4,
   }
 });

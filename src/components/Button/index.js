@@ -4,14 +4,18 @@ import { TouchableOpacity, Text, StyleSheet } from "react-native"
 
 // Definindo o componente de Button para aplicação
 // Recebendo a prop type, label e onPress
-export const Button = ({ type, label, onPress }) => {
+export const Button = ({ type, label, onPress, disabled }) => {
   return (
     <TouchableOpacity
       // para aplicar o estilo do botão, é verificado seu tipo, se é primario ou secundario
-      style={type === 'primary' ? styles.buttonPrimary : styles.buttonSecondary}
+      style={[
+        type === 'primary' ? styles.buttonPrimary : styles.buttonSecondary,
+        disabled && styles.buttonDisabled
+      ]}
 
       // passando a propriedade onPress recebida via parametros para o método onPress do botão
       onPress={onPress}
+      disabled={disabled}
     >
       {/* para aplicar o estilo do texto do botão, é verificado seu tipo, se é primario ou secundario */}
       <Text style={type === 'primary' ? styles.textPrimary : styles.textSecondary}>{label}</Text>
@@ -50,5 +54,8 @@ const styles = StyleSheet.create({
     color: 'black',
     // fontSize: '16',
     fontWeight: 'bold'
+  },
+  buttonDisabled: {
+    opacity: 0.5
   }
 });

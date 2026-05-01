@@ -1,10 +1,13 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { 
+  initializeAuth, 
+  getReactNativePersistence 
+} from 'firebase/auth';
+import { initializeFirestore, persistentLocalCache } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// IMPORTANTE: O desenvolvedor DEVE preencher essas chaves com as do Console do Firebase
-// para que a comunicação de dados funcione!
+// IMPORTANTE: As chaves são carregadas do arquivo .env ou do EAS Secrets
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -18,7 +21,15 @@ const firebaseConfig = {
 // Inicializa o Firebase
 const app = initializeApp(firebaseConfig);
 
-// Exporta as instâncias dos serviços que vamos usar
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+// Exporta as instâncias dos serviços com persistência para React Native
+export const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage)
+});
+
+// Firestore com cache local persistente para suporte offline
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache()
+});
+
 export const storage = getStorage(app);
+

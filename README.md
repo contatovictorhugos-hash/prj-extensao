@@ -11,8 +11,12 @@ Este projeto adota a arquitetura de compilação em `.apk` exclusivo (Distribui�
 - **Agendamento**: Agenda completa de Cultos e Eventos com sincronização instantânea.
 - **Células/Rocket**: Aba de dízimos/contribuições com chave PIX editável via nuvem.
 - **Informativos (?)**: História, missão e contatos da igreja totalmente gerenciáveis.
-- **Painel Administrativo**: Controle total (CRUD) de avisos, eventos e textos para o usuário `admin@admin.com`.
+- **Painel Administrativo**: Controle total (CRUD) de avisos, eventos e textos para o usuário administrador.
 - **Perfil**: Gerenciamento de dados pessoais, edição de perfil e recuperação de senha.
+
+### Credenciais de Administrador (MVP):
+- **E-mail**: `admin@admin.com`
+- **Senha**: `**`
 
 ## Stack Tecnológica
 - **Frontend**: React Native, Expo (SDK 54), React Navigation, Styled-Components, Native-Base.

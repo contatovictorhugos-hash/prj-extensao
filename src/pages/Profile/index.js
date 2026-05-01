@@ -3,8 +3,7 @@ import { SafeAreaViewComponent } from '../../styles';
 import { AuthContext } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from "../../components/Button";
-import { View, Alert, TextInput, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { Text } from 'native-base';
+import { View, Alert, TextInput, StyleSheet, Image, TouchableOpacity, Text, Platform, KeyboardAvoidingView } from 'react-native';
 import Modal from 'react-native-modal';
 import * as ImagePicker from 'expo-image-picker';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -181,32 +180,34 @@ export default function Profile({ navigation }) {
       </ProfileContainer>
 
       <Modal isVisible={editModalVisible} onBackdropPress={() => setEditModalVisible(false)}>
-        <View style={styles.modalContent}>
-          <Text fontSize="lg" bold mb={3}>Editar Perfil</Text>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Editar Perfil</Text>
 
-          <TouchableOpacity onPress={selectImage} style={styles.avatarPicker}>
-            {avatarSource ? (
-              <Image source={avatarSource} style={styles.avatarPreview} />
-            ) : (
-              <Ionicons name="camera-outline" size={40} color="#6b7280" />
-            )}
-            <Text fontSize="xs" color="gray.500" mt={1}>Alterar foto</Text>
-          </TouchableOpacity>
+            <TouchableOpacity onPress={selectImage} style={styles.avatarPicker}>
+              {avatarSource ? (
+                <Image source={avatarSource} style={styles.avatarPreview} />
+              ) : (
+                <Ionicons name="camera-outline" size={40} color="#6b7280" />
+              )}
+              <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>Alterar foto</Text>
+            </TouchableOpacity>
 
-          <Text fontSize="sm" color="gray.500" mb={1}>Nome</Text>
-          <TextInput style={styles.input} value={editName} onChangeText={setEditName} placeholder="Seu nome" />
+            <Text style={styles.modalLabel}>Nome</Text>
+            <TextInput style={styles.input} value={editName} onChangeText={setEditName} placeholder="Seu nome" placeholderTextColor="#9ca3af" />
 
-          <Text fontSize="sm" color="gray.500" mb={1} mt={2}>Telefone</Text>
-          <TextInput style={styles.input} value={editPhone} onChangeText={handlePhoneEdit} placeholder="(XX) XXXXX-XXXX" keyboardType="phone-pad" maxLength={15} />
+            <Text style={[styles.modalLabel, { marginTop: 8 }]}>Telefone</Text>
+            <TextInput style={styles.input} value={editPhone} onChangeText={handlePhoneEdit} placeholder="(XX) XXXXX-XXXX" placeholderTextColor="#9ca3af" keyboardType="phone-pad" maxLength={15} />
 
-          <Text fontSize="sm" color="gray.500" mb={1} mt={2}>Data de Nascimento</Text>
-          <TextInput style={styles.input} value={editDateOfBirth} onChangeText={handleDateEdit} placeholder="dd/mm/yyyy" keyboardType="numeric" maxLength={10} />
+            <Text style={[styles.modalLabel, { marginTop: 8 }]}>Data de Nascimento</Text>
+            <TextInput style={styles.input} value={editDateOfBirth} onChangeText={handleDateEdit} placeholder="dd/mm/yyyy" placeholderTextColor="#9ca3af" keyboardType="numeric" maxLength={10} />
 
-          <View style={{ marginTop: 16, gap: 8 }}>
-            <Button label={saving ? "Salvando..." : "Salvar"} type="primary" onPress={handleSave} disabled={saving} />
-            <Button label="Cancelar" type="secondary" onPress={() => setEditModalVisible(false)} />
+            <View style={{ marginTop: 16, gap: 8 }}>
+              <Button label={saving ? "Salvando..." : "Salvar"} type="primary" onPress={handleSave} disabled={saving} />
+              <Button label="Cancelar" type="secondary" onPress={() => setEditModalVisible(false)} />
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaViewComponent>
   );
@@ -241,5 +242,15 @@ const styles = StyleSheet.create({
   avatarPreview: {
     width: 100,
     height: 100,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  modalLabel: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 4,
   }
 });

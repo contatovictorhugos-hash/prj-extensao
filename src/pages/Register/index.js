@@ -1,4 +1,4 @@
-import { StyleSheet, Image, Alert } from 'react-native';
+import { StyleSheet, Image, Alert, TextInput, Platform, Text, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -23,7 +23,6 @@ import { SafeAreaViewComponent } from '../../styles';
 import { useState } from "react";
 import { FontAwesome, Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { Button } from "../../components/Button";
-import { Text, Button as NativeButton } from 'native-base';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function Register({ navigation }) {
@@ -140,7 +139,7 @@ export default function Register({ navigation }) {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1,
+      quality: 0.7,
     })
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
@@ -170,43 +169,57 @@ export default function Register({ navigation }) {
           
             <FormContainer>
               <AvatarInputContainer>
-                <NativeButton onPress={selectImage} backgroundColor='transparent' borderColor='black' borderWidth={1} padding={imageUri ? 0 : 2}>
+                <TouchableOpacity 
+                  onPress={selectImage} 
+                  style={styles.avatarButton}
+                >
                   {imageUri
                     ? <Image source={{ uri: imageUri }} style={{ width: 100, height: 100 }} />
                     : <Ionicons name="person-add-outline" size={64} color="black" />}
-                </NativeButton>
-                <Text fontSize="lg" >Escolha sua foto de perfil</Text>
+                </TouchableOpacity>
+                <Text style={{ fontSize: 18 }}>Escolha sua foto de perfil</Text>
               </AvatarInputContainer>
 
               <FormItemName>
                 <FormLabel>
                   Nome
                 </FormLabel>
-                <FormInputName placeholder="John" value={name} onChangeText={(value) => setName(value)} />
+                <FormInputName placeholder="John" placeholderTextColor="#9ca3af" value={name} onChangeText={(value) => setName(value)} />
               </FormItemName>
               <FormItem>
                 <FormIcon>
                   <MaterialIcons name="cake" size={32} color="black" />
                 </FormIcon>
-                <FormInput placeholder="dd/mm/yyyy" value={dateOfBirth} onChangeText={handleDateChange} keyboardType="numeric" maxLength={10} />
+                <FormInput placeholder="dd/mm/yyyy" placeholderTextColor="#9ca3af" value={dateOfBirth} onChangeText={handleDateChange} keyboardType="numeric" maxLength={10} />
               </FormItem>
               <FormItem>
                 <FormIcon>
                   <Ionicons name="mail" size={32} color="black" />
                 </FormIcon>
-                <FormInput placeholder="nome@exemplo.com" value={email} onChangeText={(value) => setEmail(value)} autoCapitalize="none" keyboardType="email-address"/>
+                <FormInput placeholder="nome@exemplo.com" placeholderTextColor="#9ca3af" value={email} onChangeText={(value) => setEmail(value)} autoCapitalize="none" keyboardType="email-address"/>
               </FormItem>
               <FormItem>
                 <FormIcon>
                   <Ionicons name="lock-closed" size={32} color="black" />
                 </FormIcon>
-                <FormInput placeholder="Senha" value={password} onChangeText={(value) => setPassword(value)} secureTextEntry={true} />
+                <TextInput 
+                  style={styles.passwordInput}
+                  placeholder="Senha" 
+                  placeholderTextColor="#9ca3af" 
+                  value={password} 
+                  onChangeText={(value) => setPassword(value)} 
+                  secureTextEntry={true}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  textContentType="password"
+                  underlineColorAndroid="transparent"
+                />
               </FormItem>
               <FormItem>
                 <FormIcon>
                   <FontAwesome name="phone" size={32} color="black" />
                 </FormIcon>
-                <FormInput placeholder="(XX) XXXXX-XXXX" value={phone} onChangeText={handlePhoneChange} keyboardType="phone-pad" maxLength={15} />
+                <FormInput placeholder="(XX) XXXXX-XXXX" placeholderTextColor="#9ca3af" value={phone} onChangeText={handlePhoneChange} keyboardType="phone-pad" maxLength={15} />
               </FormItem>
             </FormContainer>
 
@@ -223,5 +236,23 @@ export default function Register({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
+  },
+  passwordInput: {
+    borderColor: 'lightgrey',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 8,
+    fontSize: 16,
+    width: '85%',
+    fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
+  },
+  avatarButton: {
+    borderColor: 'black',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
 });

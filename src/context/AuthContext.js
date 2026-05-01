@@ -18,7 +18,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     let unsubscribeUserData = null;
 
+    // Timeout de segurança caso auth demore muito (conexão lenta)
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 10000);
+
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+      clearTimeout(timeout);
       if (currentUser) {
         setUser(currentUser);
         // Desinscrever o anterior se existir antes de criar novo
@@ -48,6 +54,7 @@ export const AuthProvider = ({ children }) => {
     });
 
     return () => {
+      clearTimeout(timeout);
       unsubscribeAuth();
       if (unsubscribeUserData) unsubscribeUserData();
     };

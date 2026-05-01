@@ -1,7 +1,6 @@
 import { SafeAreaViewComponent } from "../../styles";
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, View, Linking, TextInput, Alert, TouchableOpacity } from 'react-native';
-import { Text } from 'native-base';
+import { StyleSheet, View, Linking, TextInput, Alert, TouchableOpacity, Text, Platform, KeyboardAvoidingView } from 'react-native';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '../../services/firebaseConfig';
 import { AuthContext } from '../../context/AuthContext';
@@ -61,7 +60,7 @@ const DEFAULT_MISSION = 'Salvar almas para Cristo!';
 const DEFAULT_PASTOR = 'Conheça nosso dedicado pastor, que traz mensagens inspiradoras todos os domingos. Saiba sobre sua jornada, valores, e visão para nossa igreja';
 
 export default function Info({ navigation }){
-  const { isAdmin } = useContext(AuthContext);
+  const { isAdmin, user } = useContext(AuthContext);
 
   const endereco = "R. Canário, 41 - Jardim Deghi, Santana de Parnaíba - SP, 06502-175";
 
@@ -75,6 +74,7 @@ export default function Info({ navigation }){
   const [editField, setEditField] = useState('');
   const [editValue, setEditValue] = useState('');
   const [editTitle, setEditTitle] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'config', 'info'), (docSnap) => {
@@ -86,12 +86,10 @@ export default function Info({ navigation }){
         if (data.pastorText) setPastorText(data.pastorText);
       }
     }, (err) => {
-      if (err.code !== 'permission-denied') {
-        console.warn("Info listener error:", err);
-      }
+      console.warn("Info listener error:", err);
     });
     return () => unsubscribe();
-  }, []);
+  }, [user]);
 
   const openEditModal = (field, currentValue, title) => {
     setEditField(field);
@@ -105,6 +103,7 @@ export default function Info({ navigation }){
       Alert.alert("Atenção", "O texto não pode estar vazio.");
       return;
     }
+    setSaving(true);
     try {
       await setDoc(doc(db, 'config', 'info'), {
         history, about, mission, pastorText,
@@ -115,6 +114,8 @@ export default function Info({ navigation }){
     } catch (err) {
       console.warn('Info save error:', err.code || err.message);
       Alert.alert("Erro", "Não foi possível salvar.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -288,19 +289,23 @@ export default function Info({ navigation }){
       </HomeContainer>
 
       <Modal isVisible={modalVisible} onBackdropPress={() => setModalVisible(false)}>
-        <View style={styles.modalContent}>
-          <Text fontSize="lg" bold mb={3}>Editar: {editTitle}</Text>
-          <TextInput
-            style={[styles.input, { height: 150, textAlignVertical: 'top' }]}
-            value={editValue}
-            onChangeText={setEditValue}
-            multiline
-          />
-          <View style={{ marginTop: 16, gap: 8 }}>
-            <Button label="Salvar" type="primary" onPress={saveEdit} />
-            <Button label="Cancelar" type="secondary" onPress={() => setModalVisible(false)} />
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Editar: {editTitle}</Text>
+            <TextInput
+              style={[styles.input, { height: 150, textAlignVertical: 'top' }]}
+              value={editValue}
+              onChangeText={setEditValue}
+              placeholder="Digite o texto aqui..."
+              placeholderTextColor="#9ca3af"
+              multiline
+            />
+            <View style={{ marginTop: 16, gap: 8 }}>
+              <Button label={saving ? "Salvando..." : "Salvar"} type="primary" onPress={saveEdit} disabled={saving} />
+              <Button label="Cancelar" type="secondary" onPress={() => setModalVisible(false)} />
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaViewComponent>
   )
@@ -330,4 +335,9 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 16,
   },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  }
 })
