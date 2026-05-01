@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 16,
     padding: 16,
-    width: '50%'
+    width: '100%'
   },
   buttonSecondary: {
     backgroundColor: 'white',
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderColor: 'black',
     borderWidth: 1,
-    width: '50%'
+    width: '100%'
   },
   textPrimary: {
     color: 'white',

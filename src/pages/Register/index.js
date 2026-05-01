@@ -89,6 +89,12 @@ export default function Register({ navigation }) {
         Alert.alert('Atenção', 'Data de nascimento inválida.');
         return;
       }
+      // Validação real: verifica se a data construída corresponde aos valores informados
+      const testDate = new Date(year, month - 1, day);
+      if (testDate.getFullYear() !== year || testDate.getMonth() !== month - 1 || testDate.getDate() !== day) {
+        Alert.alert('Atenção', 'Data de nascimento inválida (dia não existe para este mês/ano).');
+        return;
+      }
     }
     
     setLoading(true);
@@ -159,7 +165,7 @@ export default function Register({ navigation }) {
         <RegisterContainter>
           <HeaderContainer>
             <HeaderTitle>
-              Register
+              Cadastro
             </HeaderTitle>
             <CancelButton onPress={() => navigation.navigate('Login')}>
               <Text>Cancelar</Text>
@@ -184,7 +190,7 @@ export default function Register({ navigation }) {
                 <FormLabel>
                   Nome
                 </FormLabel>
-                <FormInputName placeholder="John" placeholderTextColor="#9ca3af" value={name} onChangeText={(value) => setName(value)} />
+                <FormInputName placeholder="Seu nome completo" placeholderTextColor="#9ca3af" value={name} onChangeText={(value) => setName(value)} />
               </FormItemName>
               <FormItem>
                 <FormIcon>

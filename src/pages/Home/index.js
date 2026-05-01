@@ -24,6 +24,7 @@ export default function Home() {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [newPriority, setNewPriority] = useState('normal');
@@ -48,7 +49,7 @@ export default function Home() {
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user, retryCount]);
 
   const getFirstName = () => {
     if (userData && userData.name) {
@@ -126,7 +127,7 @@ export default function Home() {
         ) : error ? (
           <View style={{ alignItems: 'center', marginTop: 24 }}>
             <Text style={{ color: '#ef4444', fontSize: 14 }}>Erro ao carregar avisos.</Text>
-            <TouchableOpacity onPress={() => { setLoading(true); setError(false); }} style={{ marginTop: 8 }}>
+            <TouchableOpacity onPress={() => { setRetryCount(c => c + 1); }} style={{ marginTop: 8 }}>
               <Text style={{ color: '#3b82f6', fontSize: 14 }}>Tentar novamente</Text>
             </TouchableOpacity>
           </View>

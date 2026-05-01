@@ -27,6 +27,7 @@ export default function Calendar() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
@@ -53,7 +54,7 @@ export default function Calendar() {
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user, retryCount]);
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -166,7 +167,7 @@ export default function Calendar() {
         ) : error ? (
           <View style={{ alignItems: 'center', marginTop: 32 }}>
             <Text style={{ color: '#ef4444', fontSize: 14 }}>Erro ao carregar eventos.</Text>
-            <TouchableOpacity onPress={() => { setLoading(true); setError(false); }} style={{ marginTop: 8 }}>
+            <TouchableOpacity onPress={() => { setRetryCount(c => c + 1); }} style={{ marginTop: 8 }}>
               <Text style={{ color: '#3b82f6', fontSize: 14 }}>Tentar novamente</Text>
             </TouchableOpacity>
           </View>

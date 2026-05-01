@@ -1,0 +1,138 @@
+=============================================================================
+DOCUMENTAÇÃO TÉCNICA E FUNCIONAL: APLICATIVO IM SNT (METODISTA)
+=============================================================================
+
+Este documento detalha a arquitetura, funcionalidades e processos de manutenção do 
+aplicativo da Igreja Metodista em Santana de Parnaíba. Ele serve como guia para 
+desenvolvedores, administradores e stakeholders.
+
+-----------------------------------------------------------------------------
+1. VISÃO GERAL E PROPÓSITO
+-----------------------------------------------------------------------------
+O aplicativo foi desenvolvido para centralizar a comunicação da igreja, 
+proporcionando uma experiência digital fluida para membros e visitantes. 
+O foco principal é o engajamento em tempo real, permitindo que a liderança 
+atualize conteúdos (avisos, eventos, textos) sem a necessidade de novas 
+publicações nas lojas de aplicativos.
+
+-----------------------------------------------------------------------------
+2. STACK TECNOLÓGICA (CORE)
+-----------------------------------------------------------------------------
+- Framework: React Native com Expo (SDK 54).
+- Linguagem: JavaScript (ES6+).
+- Estilização: Styled-Components (CSS-in-JS) para design responsivo e dinâmico.
+- UI Components: Native Base v3 para componentes acessíveis e padronizados.
+- Navegação: React Navigation (Bottom Tabs + Stack).
+- Backend (BaaS): Firebase v12 (Modular SDK).
+- Gerenciamento de Estado: React Context API (AuthContext).
+
+-----------------------------------------------------------------------------
+3. ARQUITETURA DE DADOS E FIREBASE
+-----------------------------------------------------------------------------
+O aplicativo utiliza o Firebase como motor principal para dados e autenticação:
+
+A. FIRESTORE (Banco de Dados NoSQL):
+   - Estrutura de Coleções:
+     * users: Dados de perfil (nome, telefone, nascimento, cargo).
+     * notices: Mural de avisos (título, conteúdo, timestamp).
+     * events: Agenda da igreja (data, hora, título, descrição).
+     * texts: Textos gerenciáveis (História, Missão, Visão, PIX, Palavra do Pastor).
+   - Reatividade: Uso intensivo de 'onSnapshot'. O app "escuta" o banco de dados; 
+     qualquer alteração no console do Firebase ou via app admin reflete na tela 
+     do usuário em milissegundos sem refresh.
+   - Cache Offline: Configurado com 'persistentLocalCache'. O usuário pode 
+     visualizar avisos e fotos de perfil mesmo sem conexão com a internet (os dados 
+     são carregados da última sincronização).
+
+B. AUTHENTICATION:
+   - Gerenciamento de sessões persistentes via AsyncStorage.
+   - Recuperação de senha integrada com envio de e-mails automáticos pelo Google.
+
+C. STORAGE:
+   - Armazenamento de fotos de perfil em alta resolução, processadas via 
+     'expo-image-picker'.
+
+-----------------------------------------------------------------------------
+4. FUNCIONALIDADES DETALHADAS (MÓDULOS)
+-----------------------------------------------------------------------------
+
+1. AUTENTICAÇÃO E PERFIL:
+   - LOGIN/SIGNUP: Validação de campos em tempo real.
+   - REGISTER: Cadastro com upload de foto e máscaras de input (Data/Telefone).
+   - PROFILE: Edição de dados e foto. O app detecta se o usuário é Admin para 
+     exibir selos de privilégio.
+
+2. HOME (MURAL DE AVISOS):
+   - LISTAGEM: Cards modernos com agrupamento por data.
+   - ADMIN CRUD: Botões flutuantes (+) permitem adicionar avisos. Deslizar ou 
+     pressionar longo permite excluir (exclusivo para Admin).
+
+3. CALENDÁRIO (AGENDA):
+   - VISÃO CRONOLÓGICA: Lista de eventos futuros.
+   - INTEGRAÇÃO: Datas formatadas automaticamente para o padrão brasileiro.
+
+4. ROCKET (ÁREA FINANCEIRA/PIX):
+   - CHAVE PIX: Exibição da chave para dízimos.
+   - ADMIN: Permite alterar a chave PIX e o texto explicativo via interface, 
+     evitando que o código precise ser alterado para mudar a conta bancária.
+
+5. INFO (?):
+   - SEÇÕES DINÂMICAS: História, Missão e Nossa Visão.
+   - MAPA: Botão "Como Chegar" que dispara o GPS do celular com a localização exata.
+   - PASTOR: Espaço dedicado para a reflexão semanal.
+
+-----------------------------------------------------------------------------
+5. SEGURANÇA E CONTROLE DE ACESSO
+-----------------------------------------------------------------------------
+A segurança é aplicada em duas camadas:
+
+Layer 1 (Frontend): 
+- O 'AuthContext.js' define a constante 'isAdmin' baseada no e-mail 'admin@admin.com'.
+- Componentes de edição (Botões de "+" e Lixeiras) são renderizados condicionalmente:
+  { isAdmin && <AdminComponent /> }
+
+Layer 2 (Backend - Security Rules):
+- Regras do Firestore impedem que usuários comuns escrevam nas coleções de avisos 
+  e eventos. Mesmo que alguém tente burlar o app, o servidor do Firebase 
+  rejeitará a gravação se o UID do usuário não for o do Administrador.
+
+-----------------------------------------------------------------------------
+6. ESTRUTURA DE DIRETÓRIOS (GUIA RÁPIDO)
+-----------------------------------------------------------------------------
+/src
+  /components  -> Botões, cards e inputs customizados.
+  /context     -> AuthContext.js (Coração da lógica de usuário).
+  /pages       -> Pastas individuais para cada tela (JSX + Styles).
+  /services    -> firebaseConfig.js (Configuração das APIs do Google).
+  /assets      -> Imagens estáticas e ícones do app.
+  routes.js    -> Definição da árvore de navegação (Tab Navigator).
+  styles.js    -> Estilos globais e componentes base do Styled-Components.
+
+-----------------------------------------------------------------------------
+7. AMBIENTE E PRIVACIDADE (.env)
+-----------------------------------------------------------------------------
+O projeto utiliza variáveis de ambiente para esconder as chaves do Firebase:
+- Arquivo local: .env (contém chaves EXPO_PUBLIC_*)
+- CI/CD: EAS Secrets (configurado no dashboard da Expo).
+IMPORTANT: Nunca submeta o .env ao GitHub sem os devidos cuidados.
+
+-----------------------------------------------------------------------------
+8. PROCESSO DE BUILD E DISTRIBUIÇÃO (EAS)
+-----------------------------------------------------------------------------
+O aplicativo utiliza o EAS Build para compilação em nuvem:
+1. Comando Android: 'eas build -p android --profile preview'
+2. Saída: Gera um arquivo .APK pronto para instalação direta (SideLoading).
+3. Configuração: eas.json define o canal de distribuição e credenciais de assinatura.
+
+-----------------------------------------------------------------------------
+9. MELHORIAS E ROADMAP (V2)
+-----------------------------------------------------------------------------
+- Push Notifications: Alertas automáticos para novos avisos.
+- Pedidos de Oração: Módulo social interno.
+- WhatsApp Direct: Botões de link direto para a secretaria.
+- Filtro de Eventos: Busca por categoria (Culto, Célula, Festa).
+
+=============================================================================
+Última Atualização: 21/04/2026
+Responsável: Yuri (Antigravity AI Assist)
+=============================================================================

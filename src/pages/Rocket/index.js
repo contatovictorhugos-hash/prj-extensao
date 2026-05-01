@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Alert, View, TextInput, StyleSheet, Platform, KeyboardAvoidingView } from 'react-native';
+import { Alert, View, Text, TextInput, StyleSheet, Platform, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaViewComponent } from '../../styles';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from "../../components/Button";
@@ -8,7 +8,6 @@ import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '../../services/firebaseConfig';
 import { AuthContext } from '../../context/AuthContext';
 import Modal from 'react-native-modal';
-import { Text } from 'react-native';
 import {
   RocketContainer,
   HeaderContainer,

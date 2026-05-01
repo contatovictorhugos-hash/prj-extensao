@@ -42,6 +42,10 @@ yarn-error.*
 
 # Arquivos de Dados e Textos Gerados
 *.txt
+!EXPLICACAO_PROJETO.txt
 *.csv
 *.xls
 *.xlsx
+
+# EAS Build Config (contém variáveis de ambiente sensíveis)
+eas.json

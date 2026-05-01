@@ -75,6 +75,7 @@ export default function Info({ navigation }){
   const [editValue, setEditValue] = useState('');
   const [editTitle, setEditTitle] = useState('');
   const [saving, setSaving] = useState(false);
+  const [historyExpanded, setHistoryExpanded] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'config', 'info'), (docSnap) => {
@@ -108,7 +109,7 @@ export default function Info({ navigation }){
       await setDoc(doc(db, 'config', 'info'), {
         history, about, mission, pastorText,
         [editField]: editValue.trim()
-      });
+      }, { merge: true });
       setModalVisible(false);
       Alert.alert("Sucesso", "Texto atualizado!");
     } catch (err) {
@@ -174,15 +175,15 @@ export default function Info({ navigation }){
             <EditButton onPress={() => openEditModal('history', history, 'Nossa História')} />
           </View>
 
-          <UsSectionContentText>
+          <UsSectionContentText numberOfLines={historyExpanded ? undefined : 3}>
             {history}
           </UsSectionContentText>
 
-          <ReadMoreButton>
+          <ReadMoreButton onPress={() => setHistoryExpanded(!historyExpanded)}>
             <ReadMoreButtonText>
-              Ler mais
+              {historyExpanded ? 'Ler menos' : 'Ler mais'}
             </ReadMoreButtonText>
-            <FontAwesome5 name="angle-right" size={20} color="black" />
+            <FontAwesome5 name={historyExpanded ? 'angle-up' : 'angle-right'} size={20} color="black" />
           </ReadMoreButton>
 
           <View style={styles.sectionHeaderRow}>
