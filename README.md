@@ -1,48 +1,173 @@
 # Aplicativo Oficial - Igreja Metodista (Santana de Parnaíba)
 
-Um aplicativo de conectividade construído com React Native (Expo) voltado inteiramente para engajamento dos membros, informações ao vivo e calendário digital de eventos da congregação.
+Um aplicativo de conectividade construído com **React Native (Expo)** voltado para engajamento dos membros, informações ao vivo e calendário digital de eventos da congregação.
 
 ## Status do Projeto
-Este projeto adota a arquitetura de compilação em `.apk` exclusivo (Distribuição Direta - SideLoading no Android). Não se trata de um projeto destinado a listagem na Play Store no momento.
 
-### Telas Funcionais Principais:
-- **Autenticação**: Registro com foto, máscaras de entrada (telefone/data) e identificação baseada em E-mail.
-- **Home Hub**: Avisos dinâmicos em tempo real com níveis de prioridade.
-- **Agendamento**: Agenda completa de Cultos e Eventos com sincronização instantânea.
-- **Células/Rocket**: Aba de dízimos/contribuições com chave PIX editável via nuvem.
-- **Informativos (?)**: História, missão e contatos da igreja totalmente gerenciáveis.
-- **Painel Administrativo**: Controle total (CRUD) de avisos, eventos e textos para o usuário administrador.
-- **Perfil**: Gerenciamento de dados pessoais, edição de perfil e recuperação de senha.
+Este projeto distribui o app como `.apk` direto (SideLoading no Android), sem publicação na Play Store no momento.
 
-### Credenciais de Administrador (MVP):
-- **E-mail**: `admin@admin.com`
-- **Senha**: `**`
+---
+
+## Telas Funcionais
+
+| Tela | Descrição |
+|---|---|
+| **Autenticação** | Registro com foto, máscaras de entrada e login por e-mail |
+| **Home Hub** | Avisos dinâmicos em tempo real com níveis de prioridade |
+| **Agendamento** | Agenda de cultos e eventos com sincronização instantânea |
+| **Células/Rocket** | Dízimos e contribuições com chave PIX editável via nuvem |
+| **Informativos** | História, missão e contatos da igreja gerenciáveis pelo admin |
+| **Painel Admin** | CRUD completo de avisos, eventos e textos |
+| **Perfil** | Edição de dados pessoais e recuperação de senha |
+
+### Credenciais de Administrador (MVP)
+- **E-mail:** `admin@admin.com`
+- **Senha:** `**`
+
+---
 
 ## Stack Tecnológica
-- **Frontend**: React Native, Expo (SDK 54), React Navigation, Styled-Components, Native-Base.
-- **Backend Service (Projetado)**: Firebase (Auth, Storage, Firestore NoSQL).
-- **Builder DevOps**: EAS Build CLI (Nuvem).
 
-## Como Rodar o Projeto Local (Dev/QA)
-Para debugar e visualizar no app `Expo Go` no seu próprio telefone via Wi-Fi:
+- **Frontend:** React Native, Expo SDK 54, React Navigation, Styled-Components, Native-Base
+- **Backend:** Firebase (Auth, Firestore, Storage)
+- **Build/DevOps:** EAS Build CLI (compilação na nuvem)
 
-1. Assegure que não hajam restrições de permissões para rodar scripts no Windows (rode PowerShell como Administrador: `Set-ExecutionPolicy RemoteSigned`).
-2. Clone o repositório.
-3. Instale as dependências essenciais do Expo 54:
-   ```bash
-   npm install --legacy-peer-deps
-   ```
-4. Suba o servidor de desenvolvimento do Metro Bundler:
-   ```bash
-   npx expo start --tunnel
-   ```
-5. Leia o QR e abra no App Expo Go!
+---
 
-## Como gerar o Instalador (.APK)
-Se você precisa compilar o código JavaScript para as máquinas virtuais Java do Android e distribuir o app para uso comercial:
+## ⚙️ Configuração em uma Nova Máquina
+
+### 1. Pré-requisitos
+
+Antes de tudo, verifique se você tem as ferramentas necessárias instaladas:
+
+```bash
+# Verifique a versão do Node (precisa ser >= 18)
+node -v
+
+# Verifique o npm
+npm -v
+```
+
+> 💡 Se não tiver o Node instalado, baixe em: https://nodejs.org (escolha a versão LTS)
+
+No **Windows**, pode ser necessário liberar permissões para executar scripts. Abra o **PowerShell como Administrador** e rode:
+```powershell
+Set-ExecutionPolicy RemoteSigned
+```
+
+---
+
+### 2. Clonar o Repositório
+
+```bash
+git clone <url-do-repositorio>
+cd prj_extensao
+```
+
+---
+
+### 3. Arquivos Secretos (não estão no Git!)
+
+Alguns arquivos **não são enviados ao repositório** por conterem informações sensíveis. Você precisa recebê-los separadamente (via pendrive, e-mail, Google Drive, etc.) e copiá-los para a **raiz do projeto**.
+
+| Arquivo | Para que serve |
+|---|---|
+| `.env` | Chaves de acesso ao Firebase (banco de dados e autenticação) |
+| `eas.json` | Configurações de build do EAS (geração do APK) |
+
+Após copiar, a raiz do projeto deve conter esses dois arquivos:
+
+```
+prj_extensao/
+├── .env          ← você copiou manualmente
+├── eas.json      ← você copiou manualmente
+├── App.js
+├── package.json
+└── ...
+```
+
+> ⚠️ Sem o `.env`, o app vai abrir mas **não vai conectar ao Firebase** (login, dados, etc. não vão funcionar).
+
+---
+
+### 4. Instalar Dependências
+
+```bash
+npm install
+```
+
+> 💡 O arquivo `.npmrc` já configura `legacy-peer-deps=true` automaticamente, então não é necessário passar a flag manualmente.
+
+Se der algum erro de permissão no Windows, tente:
+```bash
+npm install --legacy-peer-deps
+```
+
+---
+
+## ▶️ Rodando em Desenvolvimento (Expo Go)
+
+Com tudo configurado, suba o servidor local:
+
+```bash
+npx expo start
+```
+
+Ou, se estiver em redes diferentes (ex: celular com 4G e PC com Wi-Fi), use o modo tunnel:
+
+```bash
+npx expo start --tunnel
+```
+
+Em seguida:
+1. Instale o app **Expo Go** no seu celular ([Android](https://play.google.com/store/apps/details?id=host.exp.exponent) / [iOS](https://apps.apple.com/app/expo-go/id982107779))
+2. Escaneie o QR Code exibido no terminal com o Expo Go
+
+> ✅ **Não precisa de login** para rodar em desenvolvimento.
+
+---
+
+## 📦 Gerando o APK (EAS Build)
+
+Para compilar e gerar o `.apk` instalável, é necessário fazer login com a conta Expo que tem acesso ao projeto.
+
+### Instalar o EAS CLI (se não tiver)
+
+```bash
+npm install -g eas-cli
+```
+
+### Fazer login
 
 ```bash
 eas login
-eas build -p android --profile preview
 ```
-*(Certifique-se que o perfil Preview no eas.json está configurado como `buildType: apk`)*
+
+> 💡 Use a conta que foi adicionada ao projeto no [expo.dev](https://expo.dev). Se não tiver acesso, peça para o responsável do projeto te adicionar como membro.
+
+### Gerar o APK
+
+```bash
+eas build --profile preview --platform android
+```
+
+Aguarde o build finalizar. O link para download do `.apk` aparecerá no terminal e também no painel do [expo.dev](https://expo.dev).
+
+---
+
+## 🗂️ Resumo: O que precisa ser passado manualmente
+
+| O que | Como obter |
+|---|---|
+| `.env` | Pedir para o responsável do projeto |
+| `eas.json` | Pedir para o responsável do projeto |
+| Acesso ao projeto no expo.dev | Pedir para ser adicionado como membro |
+| Node.js >= 18 | Instalar em https://nodejs.org |
+
+---
+
+## Stack Completa
+
+- **Frontend:** React Native · Expo SDK 54 · React Navigation · Styled-Components · Native-Base
+- **Backend:** Firebase (Auth · Firestore · Storage)
+- **Build:** EAS Build CLI
