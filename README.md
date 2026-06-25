@@ -1,173 +1,156 @@
-# Aplicativo Oficial - Igreja Metodista (Santana de Parnaíba)
+# Metodista
 
-Um aplicativo de conectividade construído com **React Native (Expo)** voltado para engajamento dos membros, informações ao vivo e calendário digital de eventos da congregação.
+> Provides a mobile community hub for the Methodist Church of Santana de Parnaiba, centralising announcements, events, tithing, and member profiles in a single app.
 
-## Status do Projeto
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
 
-Este projeto distribui o app como `.apk` direto (SideLoading no Android), sem publicação na Play Store no momento.
+## Table of Contents
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Ecosystem](#ecosystem)
+- [Contributing](#contributing)
 
----
+## Overview
 
-## Telas Funcionais
+Metodista is a cross-platform mobile application built with React Native and Expo for the Methodist Church in Santana de Parnaiba. It serves as a digital communication channel between the church leadership and its members. Administrators can publish announcements, manage events, and update institutional content in real time through Firebase. Members access a personalised experience with user profiles, a notice board, an event calendar, a tithing section with PIX key management, and informational pages — all with offline support through Firestore local cache.
 
-| Tela | Descrição |
+## Architecture
+
+The application follows a page-based component architecture with a centralised authentication context:
+
+```
+App.js
+  └── AuthProvider (Context API)
+        └── Routes (React Navigation — Bottom Tabs)
+              ├── Login / SignIn / Register   (auth flow — tab bar hidden)
+              ├── Home                        (notice board)
+              ├── Calendar                    (event listing)
+              ├── Rocket                      (PIX / tithing)
+              ├── Info                        (institutional pages)
+              └── Profile                     (user profile)
+```
+
+- **AuthContext** — Manages Firebase Authentication state, Firestore user data listener, and admin detection (based on a predefined email).
+- **Pages** — Each screen is a self-contained module with its own `index.js` (logic/JSX) and `styles.js` (Styled Components).
+- **Services** — Firebase configuration module initialises Auth, Firestore, and Storage with persistent caching.
+- **State Management** — React Context API for global user/session state; component-local state for UI.
+- **Data Sync** — Firestore `onSnapshot` listeners provide real-time updates without manual refresh.
+
+### Build and Distribution
+
+The app uses Expo Application Services (EAS) for cloud builds. Android APKs are generated via `eas build -p android --profile preview` for sideloading distribution.
+
+## Tech Stack
+
+| Layer | Technology |
 |---|---|
-| **Autenticação** | Registro com foto, máscaras de entrada e login por e-mail |
-| **Home Hub** | Avisos dinâmicos em tempo real com níveis de prioridade |
-| **Agendamento** | Agenda de cultos e eventos com sincronização instantânea |
-| **Células/Rocket** | Dízimos e contribuições com chave PIX editável via nuvem |
-| **Informativos** | História, missão e contatos da igreja gerenciáveis pelo admin |
-| **Painel Admin** | CRUD completo de avisos, eventos e textos |
-| **Perfil** | Edição de dados pessoais e recuperação de senha |
+| Language | JavaScript (ES6+) |
+| Framework | React Native 0.81 with Expo SDK 54 |
+| Navigation | React Navigation (Bottom Tabs + Stack) |
+| Styling | Styled Components (CSS-in-JS) |
+| UI Library | NativeBase v3 |
+| Backend (BaaS) | Firebase v12 (Auth, Firestore, Storage) |
+| State Management | React Context API |
+| Build / CI | Expo EAS Build |
+| Font | Poppins (via @expo-google-fonts) |
 
-### Credenciais de Administrador (MVP)
-- **E-mail:** `admin@admin.com`
-- **Senha:** `**`
+## Getting Started
 
----
+### Prerequisites
 
-## Stack Tecnológica
+- Node.js 18+
+- npm or Yarn
+- Expo CLI (`npx expo`)
+- Android Studio / Xcode (for emulators) or the Expo Go app on a physical device
 
-- **Frontend:** React Native, Expo SDK 54, React Navigation, Styled-Components, Native-Base
-- **Backend:** Firebase (Auth, Firestore, Storage)
-- **Build/DevOps:** EAS Build CLI (compilação na nuvem)
-
----
-
-## ⚙️ Configuração em uma Nova Máquina
-
-### 1. Pré-requisitos
-
-Antes de tudo, verifique se você tem as ferramentas necessárias instaladas:
+### Installation
 
 ```bash
-# Verifique a versão do Node (precisa ser >= 18)
-node -v
-
-# Verifique o npm
-npm -v
-```
-
-> 💡 Se não tiver o Node instalado, baixe em: https://nodejs.org (escolha a versão LTS)
-
-No **Windows**, pode ser necessário liberar permissões para executar scripts. Abra o **PowerShell como Administrador** e rode:
-```powershell
-Set-ExecutionPolicy RemoteSigned
-```
-
----
-
-### 2. Clonar o Repositório
-
-```bash
-git clone <url-do-repositorio>
+# Clone the repository
+git clone https://github.com/contatovictorhugos/prj_extensao.git
 cd prj_extensao
-```
 
----
-
-### 3. Arquivos Secretos (não estão no Git!)
-
-Alguns arquivos **não são enviados ao repositório** por conterem informações sensíveis. Você precisa recebê-los separadamente (via pendrive, e-mail, Google Drive, etc.) e copiá-los para a **raiz do projeto**.
-
-| Arquivo | Para que serve |
-|---|---|
-| `.env` | Chaves de acesso ao Firebase (banco de dados e autenticação) |
-| `eas.json` | Configurações de build do EAS (geração do APK) |
-
-Após copiar, a raiz do projeto deve conter esses dois arquivos:
-
-```
-prj_extensao/
-├── .env          ← você copiou manualmente
-├── eas.json      ← você copiou manualmente
-├── App.js
-├── package.json
-└── ...
-```
-
-> ⚠️ Sem o `.env`, o app vai abrir mas **não vai conectar ao Firebase** (login, dados, etc. não vão funcionar).
-
----
-
-### 4. Instalar Dependências
-
-```bash
+# Install dependencies
 npm install
 ```
 
-> 💡 O arquivo `.npmrc` já configura `legacy-peer-deps=true` automaticamente, então não é necessário passar a flag manualmente.
+### Configuration
 
-Se der algum erro de permissão no Windows, tente:
-```bash
-npm install --legacy-peer-deps
-```
+Create a `.env` file in the project root with your Firebase credentials:
 
----
+| Variable | Description | Example |
+|---|---|---|
+| `EXPO_PUBLIC_FIREBASE_API_KEY` | Firebase Web API key | `AIzaSy...` |
+| `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN` | Firebase Auth domain | `myapp.firebaseapp.com` |
+| `EXPO_PUBLIC_FIREBASE_PROJECT_ID` | Firebase project ID | `myapp` |
+| `EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET` | Cloud Storage bucket | `myapp.firebasestorage.app` |
+| `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | FCM sender ID | `422969540670` |
+| `EXPO_PUBLIC_FIREBASE_APP_ID` | Firebase app ID | `1:422...:web:08e...` |
+| `EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID` | Google Analytics ID | `G-XXXXXXXXXX` |
 
-## ▶️ Rodando em Desenvolvimento (Expo Go)
-
-Com tudo configurado, suba o servidor local:
-
-```bash
-npx expo start
-```
-
-Ou, se estiver em redes diferentes (ex: celular com 4G e PC com Wi-Fi), use o modo tunnel:
+### Running locally
 
 ```bash
-npx expo start --tunnel
+# Start the Expo development server
+npm run dev
+
+# Or start with tunnel (useful for physical devices on different networks)
+npm run tunnel
 ```
 
-Em seguida:
-1. Instale o app **Expo Go** no seu celular ([Android](https://play.google.com/store/apps/details?id=host.exp.exponent) / [iOS](https://apps.apple.com/app/expo-go/id982107779))
-2. Escaneie o QR Code exibido no terminal com o Expo Go
+Scan the QR code with the Expo Go app or press `a` to open on an Android emulator.
 
-> ✅ **Não precisa de login** para rodar em desenvolvimento.
+## Project Structure
 
----
-
-## 📦 Gerando o APK (EAS Build)
-
-Para compilar e gerar o `.apk` instalável, é necessário fazer login com a conta Expo que tem acesso ao projeto.
-
-### Instalar o EAS CLI (se não tiver)
-
-```bash
-npm install -g eas-cli
+```
+prj_extensao/
+├── src/
+│   ├── components/       # Reusable UI components (Button)
+│   ├── context/          # AuthContext — global auth state
+│   ├── pages/            # Screen modules (JSX + styles per page)
+│   │   ├── Calendar/
+│   │   ├── Home/
+│   │   ├── Info/
+│   │   ├── Login/
+│   │   ├── Profile/
+│   │   ├── Register/
+│   │   ├── Rocket/
+│   │   └── SignIn/
+│   ├── services/         # Firebase configuration
+│   ├── routes.js         # Navigation tree definition
+│   └── styles.js         # Global styled-components
+├── assets/               # Static images and icons
+├── App.js                # Application entry point
+├── app.json              # Expo configuration
+├── eas.json              # EAS Build profiles
+└── package.json
 ```
 
-### Fazer login
+## Ecosystem
 
-```bash
-eas login
-```
+This project is part of the **Projetcs** suite. The following projects work together:
 
-> 💡 Use a conta que foi adicionada ao projeto no [expo.dev](https://expo.dev). Se não tiver acesso, peça para o responsável do projeto te adicionar como membro.
+| Project | Role | Depends On |
+|---|---|---|
+| **key-management-service** | REST API — cryptographic key lifecycle management | PostgreSQL |
+| **mail-notifier-service** | REST API — transactional email delivery with encryption | key-management-service API, PostgreSQL, Brevo |
+| **fipe-csv** | REST API — FIPE vehicle pricing table to CSV export | FIPE public API |
+| **bko-project** | Server-rendered web app — internal backoffice administration | PostgreSQL |
+| **split-csv** | CLI tool — splits large CSV files into smaller parts | — |
+| **mergeCSV** | CLI tool — merges multiple CSV files into one | — |
+| **prj_extensao** | Mobile app (React Native / Expo) — Methodist church community app | Firebase |
 
-### Gerar o APK
+> **This project**: `prj_extensao` (Metodista) is a standalone mobile application. It does not depend on other projects in this suite; it uses Firebase as its backend-as-a-service.
 
-```bash
-eas build --profile preview --platform android
-```
+## Contributing
 
-Aguarde o build finalizar. O link para download do `.apk` aparecerá no terminal e também no painel do [expo.dev](https://expo.dev).
+1. Fork the repository.
+2. Create a feature branch: `git checkout -b feature/your-feature-name`
+3. Commit your changes: `git commit -m 'feat: add your feature'`
+4. Push to the branch: `git push origin feature/your-feature-name`
+5. Open a Pull Request.
 
----
-
-## 🗂️ Resumo: O que precisa ser passado manualmente
-
-| O que | Como obter |
-|---|---|
-| `.env` | Pedir para o responsável do projeto |
-| `eas.json` | Pedir para o responsável do projeto |
-| Acesso ao projeto no expo.dev | Pedir para ser adicionado como membro |
-| Node.js >= 18 | Instalar em https://nodejs.org |
-
----
-
-## Stack Completa
-
-- **Frontend:** React Native · Expo SDK 54 · React Navigation · Styled-Components · Native-Base
-- **Backend:** Firebase (Auth · Firestore · Storage)
-- **Build:** EAS Build CLI
+Please follow [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
