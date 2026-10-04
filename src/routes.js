@@ -14,6 +14,7 @@ import Home from './pages/Home';
 import Calendar from './pages/Calendar';
 import Profile from './pages/Profile';
 import Rocket from './pages/Rocket';
+import Prayer from './pages/Prayer';
 import { TabBarIconButton } from './styles';
 import Info from './pages/Info';
 
@@ -91,6 +92,18 @@ export default function Routes(){
           tabBarIcon: ({color, focused}) => (
             <TabBarIconButton isFocused={focused}>
               <Entypo name="home" size={24} color={color} />
+            </TabBarIconButton>
+          )
+        }}
+      />
+      <Tab.Screen
+        name="Prayer"
+        component={Prayer}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({color, focused}) => (
+            <TabBarIconButton isFocused={focused}>
+              <Ionicons name={focused ? "heart" : "heart-outline"} size={24} color={color} />
             </TabBarIconButton>
           )
         }}

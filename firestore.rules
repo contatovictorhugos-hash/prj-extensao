@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.email.lower() == 'admin@admin.com';
+    }
+
+    // Regras para perfil de usuários
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // Regras para avisos da congregação
+    match /news/{newsId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Regras para agenda de eventos
+    match /events/{eventId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Regras para configurações globais (ex: chave PIX)
+    match /config/{configId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Regras para Mural de Orações (Melhoria 8º Semestre)
+    match /prayers/{prayerId} {
+      function isAuthor() {
+        return resource.data.authorId == request.auth.uid;
+      }
+
+      // Leitura permitida para pedidos públicos, para o próprio autor ou para a administração
+      allow read: if isAuthenticated() && (
+        resource.data.visibility == 'public' ||
+        isAuthor() ||
+        isAdmin()
+      );
+
+      // Criação permitida para qualquer usuário autenticado com limite de mensagem
+      allow create: if isAuthenticated()
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.visibility in ['public', 'confidential']
+        && request.resource.data.prayingCount == 0
+        && request.resource.data.message.size() <= 500;
+
+      // Exclusão permitida para o autor ou administrador
+      allow delete: if isAuthenticated() && (isAuthor() || isAdmin());
+
+      // Atualização permitida para o contador "Estou Orando"
+      allow update: if isAuthenticated()
+        && resource.data.visibility == 'public'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['prayingCount']);
+
+      // Subcoleção de apoiadores do pedido de oração
+      match /supporters/{uid} {
+        allow read: if isAuthenticated();
+        allow create, delete: if isAuthenticated() && request.auth.uid == uid;
+      }
+    }
+  }
+}

@@ -26,9 +26,10 @@ App.js
   └── AuthProvider (Context API)
         └── Routes (React Navigation — Bottom Tabs)
               ├── Login / SignIn / Register   (auth flow — tab bar hidden)
-              ├── Home                        (notice board)
-              ├── Calendar                    (event listing)
               ├── Rocket                      (PIX / tithing)
+              ├── Calendar                    (event listing)
+              ├── Home                        (notice board)
+              ├── Prayer                      (prayer wall & intercession)
               ├── Info                        (institutional pages)
               └── Profile                     (user profile)
 ```
@@ -115,6 +116,7 @@ prj_extensao/
 │   │   ├── Home/
 │   │   ├── Info/
 │   │   ├── Login/
+│   │   ├── Prayer/
 │   │   ├── Profile/
 │   │   ├── Register/
 │   │   ├── Rocket/
